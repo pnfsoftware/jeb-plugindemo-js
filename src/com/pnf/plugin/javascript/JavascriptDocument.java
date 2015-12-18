@@ -17,133 +17,127 @@ limitations under the License.
  */
 package com.pnf.plugin.javascript;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
-import org.apache.commons.lang.StringUtils;
-import org.mozilla.javascript.Node;
 import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ast.AstNode;
 import org.mozilla.javascript.ast.AstRoot;
-import org.mozilla.javascript.ast.ExpressionStatement;
+import org.mozilla.javascript.ast.FunctionCall;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.Name;
+import org.mozilla.javascript.ast.NodeVisitor;
+import org.mozilla.javascript.ast.StringLiteral;
+import org.mozilla.javascript.ast.VariableDeclaration;
+import org.mozilla.javascript.ast.VariableInitializer;
 
+import com.pnf.plugin.javascript.AddressReferences.Position;
 import com.pnfsoftware.jeb.core.output.ItemClassIdentifiers;
+import com.pnfsoftware.jeb.core.output.text.ICoordinates;
 import com.pnfsoftware.jeb.core.output.text.ITextDocumentPart;
 import com.pnfsoftware.jeb.core.output.text.impl.AbstractTextDocument;
-import com.pnfsoftware.jeb.util.logging.GlobalLog;
-import com.pnfsoftware.jeb.util.logging.ILogger;
+import com.pnfsoftware.jeb.core.output.text.impl.Coordinates;
 
 /**
- * Document that highligts js keywords.
+ * 
+ * Default Javascript document that beautifies JS by rebuilding complete String from {@link AstRoot}
+ * . It also highlight JS keywords.
+ * 
+ * TODO missing implementations are render as raw text
  * 
  * @author Cedric Lucas
  *
  */
 public class JavascriptDocument extends AbstractTextDocument {
-    private static final ILogger logger = GlobalLog.getLogger(JavascriptDocument.class);
-
-    // 1 indent equals to 2 spaces
-    private static final int INDENT_SIZE = 2;
 
     private JavascriptDocumentPart out;
 
+    private JavascriptUnit unit;
+
+    public JavascriptDocument(JavascriptUnit unit) {
+        this.unit = unit;
+        refreshPart();
+    }
+
+    private void refreshPart() {
+        out = new JavascriptDocumentPart(unit.getLines());
+        visitRoot(unit.getRoot());
+    }
+
     /**
-     * @param root
+     * Add {@link ItemClassIdentifiers} to some keywords
      */
-    public JavascriptDocument(AstRoot root) {
-        out = new JavascriptDocumentPart();
-        generateWholePart(root);
-    }
-
-    private void generateWholePart(AstRoot root) {
-        displayStatements(root.getStatements(), 0);
-    }
-
-    private void displayStatements(List<AstNode> statements, int indent) {
-        for(AstNode statement: statements) {
-            displayStatement(statement, indent);
-        }
-    }
-
-    private void displayStatement(AstNode statement, int indent) {
-        switch(statement.getType()) {
-        case Token.FUNCTION:
-            displayFunction((FunctionNode)statement, indent);
-            break;
-        case Token.EXPR_VOID:
-        case Token.EXPR_RESULT:
-            displayExpressionStatement((ExpressionStatement)statement, indent);
-            break;
-        case Token.VAR:
-            // TODO
-            //displayVariableStatement((VariableDeclaration)statement, indent);
-            //break;
-        default:
-            // don't know how to manage it: we will display default text
-            out.append(statement.toSource(indent * INDENT_SIZE));
-            break;
-        }
-    }
-
-    private void displayExpressionStatement(ExpressionStatement statement, int indent) {
-        out.append(statement.toSource(indent * INDENT_SIZE));
-    }
-
-    private void displayFunction(FunctionNode functionNode, int indent) {
-        out.append(functionNode.makeIndent(indent * INDENT_SIZE));
-        out.append("function", ItemClassIdentifiers.KEYWORD);
-        out.space();
-        out.append(functionNode.getName(), ItemClassIdentifiers.METHOD_NAME);
-        out.append("(" + displayFunctionParameters(functionNode) + ")");
-        displayBody(functionNode.getBody(), indent);
-    }
-
-    private void displayBody(AstNode body, int indent) {
-        if(body.getType() == Token.BLOCK) {
-            // block surrounded by {}
-            out.append(" {");
-            out.newLine();
-            displayNode(body, indent + 1);
-            out.newLine();
-            out.append(body.makeIndent(indent * INDENT_SIZE));
-            out.append("}");
-            out.newLine();
-        }
-        else {
-            out.newLine();
-            displayNode(body, indent + 1);
-            out.newLine();
-        }
-    }
-
-    private void displayNode(Node statement, int indent) {
-        Node node = statement.getFirstChild();
-        if(node == null) {
-            return;
-        }
-        do {
-            if(statement instanceof AstNode) {
-                displayStatement((AstNode)node, indent);
+    private void visitRoot(AstRoot root) {
+        // Visit all the nodes to find notifications
+        root.visitAll(new NodeVisitor() {
+            @Override
+            public boolean visit(AstNode node) {
+                switch(node.getType()) {
+                case Token.FUNCTION:
+                    displayFunction((FunctionNode)node);
+                    break;
+                case Token.EXPR_VOID:
+                case Token.EXPR_RESULT:
+                    break;
+                case Token.CALL:
+                    displayCallStatement((FunctionCall)node);
+                    break;
+                case Token.VAR:
+                case Token.CONST:
+                    if(node instanceof VariableDeclaration) {
+                        displayVariableStatement((VariableDeclaration)node);
+                    }
+                    // TODO else VariableInitializer
+                    break;
+                case Token.STRING:
+                    displayStringStatement((StringLiteral)node);
+                    break;
+                case Token.NAME:
+                    //out.append(((Name)node).getIdentifier());
+                    break;
+                default:
+                    // nothing to do
+                    break;
+                }
+                return true;
             }
-            else {
-                logger.error("unknown node %s", node.getClass().toString());
-                displayNode(node, indent);
-            }
-            node = statement.getNext();
-        }
-        while(node != null);
+
+        });
     }
 
-    private String displayFunctionParameters(FunctionNode functionNode) {
-        List<String> parameters = new ArrayList<String>();
-        for(AstNode node: functionNode.getParams()) {
-            if(node instanceof Name) {
-                parameters.add(((Name)node).getIdentifier());
+    private void displayVariableStatement(VariableDeclaration statement) {
+        List<VariableInitializer> variables = statement.getVariables();
+        for(int i = 0; i < variables.size(); i++) {
+            VariableInitializer init = variables.get(i);
+            if(i == 0) {
+                out.addItem(statement.getAbsolutePosition(), "var".length(), ItemClassIdentifiers.KEYWORD);
             }
+            Name node = (Name)init.getTarget();
+            out.addItem(node.getAbsolutePosition(), node.getIdentifier().length(), ItemClassIdentifiers.IDENTIFIER);
         }
-        return StringUtils.join(parameters, ", ");
+    }
+
+    private void displayStringStatement(StringLiteral statement) {
+        out.addItem(statement.getAbsolutePosition(), statement.getLength(), ItemClassIdentifiers.STRING);
+    }
+
+    private void displayFunction(FunctionNode functionNode) {
+        out.addItem(functionNode.getAbsolutePosition(), "function".length(), ItemClassIdentifiers.KEYWORD);
+        Name functionName = functionNode.getFunctionName();
+        if(functionName != null) {
+            out.addItem(functionName.getAbsolutePosition(), functionName.getLength(), ItemClassIdentifiers.METHOD_NAME,
+                    true);
+        }
+    }
+
+    private void displayCallStatement(FunctionCall node) {
+        String functionName = node.getTarget().toSource();
+        FunctionNode function = getFunctionNode(functionName);
+        if(function != null) {
+            out.addItem(node.getTarget().getAbsolutePosition(), functionName.length(),
+                    ItemClassIdentifiers.METHOD_NAME, function.getAbsolutePosition());
+        }
+
     }
 
     @Override
@@ -152,8 +146,61 @@ public class JavascriptDocument extends AbstractTextDocument {
     }
 
     @Override
+    public ITextDocumentPart getDocumentPart(long anchorId, int linesAfter) {
+        return getDocumentPart(anchorId, linesAfter, 0);
+    }
+
+    @Override
     public ITextDocumentPart getDocumentPart(long anchorId, int linesAfter, int linesBefore) {
         return out;
     }
 
+    @Override
+    public void dispose() {
+    }
+
+    private FunctionNode getFunctionNode(String name) {
+        if(name == null) {
+            return null;
+        }
+        TreeMap<Integer, FunctionNode> functions = unit.getFunctions();
+        for(FunctionNode node: functions.values()) {
+            if(name.equals(node.getName())) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public ICoordinates addressToCoordinates(String address) {
+        if(address == null) {
+            return null;
+        }
+        Integer intAddress = null;
+        try {
+            intAddress = Integer.parseInt(address);
+        }
+        catch(NumberFormatException e) {
+            // User input
+            // Here we can manage function jump for example
+            FunctionNode node = getFunctionNode(address);
+            if(node == null) {
+                return null;
+            }
+            intAddress = node.getAbsolutePosition();
+        }
+
+        Position p = AddressReferences.getPosition(unit.getLines(), intAddress);
+        if(p == null) {
+            return null;
+        }
+        return new Coordinates(0, p.getLine(), p.getOffsetAtLine());
+    }
+
+    @Override
+    public String coordinatesToAddress(ICoordinates coordinates) {
+        return AddressReferences.getAbsolutePosition(unit.getLines(), coordinates.getLineDelta(),
+                coordinates.getColumnOffset());
+    }
 }

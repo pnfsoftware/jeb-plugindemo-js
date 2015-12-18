@@ -20,7 +20,10 @@ package com.pnf.plugin.javascript;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
+import com.pnfsoftware.jeb.core.output.IActionableItem;
 import com.pnfsoftware.jeb.core.output.ItemClassIdentifiers;
 import com.pnfsoftware.jeb.core.output.text.IAnchor;
 import com.pnfsoftware.jeb.core.output.text.ILine;
@@ -30,17 +33,27 @@ import com.pnfsoftware.jeb.core.output.text.impl.Line;
 import com.pnfsoftware.jeb.core.output.text.impl.TextItem;
 
 /**
- * Document part which stores the lines and the scific highlights (items)
+ * Part of the Javascript document
  * 
  * @author Cedric Lucas
  *
  */
 public class JavascriptDocumentPart implements ITextDocumentPart {
 
-    List<Line> lines = new ArrayList<Line>();
-    List<TextItem> items = new ArrayList<TextItem>();
+    private TreeMap<Integer, Line> lines;
 
-    StringBuilder currentLine = new StringBuilder();
+    /**
+     * All lines are saved because each time document is changed, the {@link #getLines()} method is
+     * called. If not buffered, it could raise performance issues
+     */
+    private List<Line> linesAsList;
+
+    public JavascriptDocumentPart(TreeMap<Integer, String> stringLines) {
+        this.lines = new TreeMap<>();
+        for(Entry<Integer, String> entry: stringLines.entrySet()) {
+            lines.put(entry.getKey(), new Line(entry.getValue()));
+        }
+    }
 
     @Override
     public List<? extends IAnchor> getAnchors() {
@@ -49,35 +62,33 @@ public class JavascriptDocumentPart implements ITextDocumentPart {
 
     @Override
     public List<? extends ILine> getLines() {
-        return lines;
-    }
-
-    public void append(String text) {
-        String textlines[] = text.split("\\r?\\n");
-        currentLine.append(textlines[0]);
-        for(int i = 1; i < textlines.length; i++) {
-            newLine();
-            currentLine.append(textlines[i]);
+        if(linesAsList == null || linesAsList.isEmpty()) {
+            linesAsList = new ArrayList<Line>(lines.values());
         }
+        return linesAsList;
     }
 
-    public void newLine() {
-        lines.add(new Line(currentLine, items));
-        currentLine = new StringBuilder();
-        items = new ArrayList<TextItem>();
+    /**
+     * Add an {@link ItemClassIdentifiers} on a section
+     */
+    public void addItem(int absolutePosition, int length, ItemClassIdentifiers keyword) {
+        addItem(absolutePosition, length, keyword, 0, false);
     }
 
-    public void space() {
-        currentLine.append(" ");
+    public void addItem(int absolutePosition, int length, ItemClassIdentifiers keyword, int itemId) {
+        addItem(absolutePosition, length, keyword, itemId, false);
     }
 
-    public void append(String text, ItemClassIdentifiers keyword) {
-        if(text.contains("\\r") || text.contains("\\n")) {
-            throw new IllegalArgumentException("Keyword can not contain CR");
-        }
-        int start = currentLine.length();
-        currentLine.append(text);
-        items.add(new TextItem(start, text.length(), keyword));
+    public void addItem(int absolutePosition, int length, ItemClassIdentifiers keyword, boolean master) {
+        addItem(absolutePosition, length, keyword, master ? absolutePosition: 0, master);
+    }
+
+    public void addItem(int absolutePosition, int length, ItemClassIdentifiers keyword, int itemId, boolean master) {
+        Entry<Integer, Line> line = lines.floorEntry(absolutePosition);
+        int positionInLine = absolutePosition - line.getKey();
+        line.getValue().addItem(
+                new TextItem(positionInLine, length, keyword, itemId, master ? IActionableItem.ROLE_MASTER: 0));
 
     }
+
 }

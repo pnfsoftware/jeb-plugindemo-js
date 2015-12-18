@@ -53,6 +53,8 @@ public class SamplePlugin extends AbstractUnitIdentifier {
 
     @Override
     public IUnit prepare(String name, IInput input, IUnitProcessor unitProcessor, IUnitCreator parent) {
-        return new SampleUnit(name, input, unitProcessor, parent, pdm);
+        IUnit sampleUnit = new SampleUnit(name, input, unitProcessor, parent, pdm);
+        sampleUnit.process(); // forces children calculation
+        return sampleUnit;
     }
 }

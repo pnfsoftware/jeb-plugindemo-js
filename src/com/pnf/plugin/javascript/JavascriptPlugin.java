@@ -68,7 +68,9 @@ public class JavascriptPlugin extends AbstractUnitIdentifier {
 
     @Override
     public IUnit prepare(String name, IInput input, IUnitProcessor unitProcessor, IUnitCreator parent) {
-        return new JavascriptUnit(name, input, unitProcessor, parent, pdm, root);
+        IUnit jsUnit = new JavascriptUnit(name, input, unitProcessor, parent, pdm, root);
+        jsUnit.process();
+        return jsUnit;
     }
 
 }
