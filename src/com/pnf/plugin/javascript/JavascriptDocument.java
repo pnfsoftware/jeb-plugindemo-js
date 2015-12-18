@@ -32,11 +32,14 @@ import org.mozilla.javascript.ast.VariableDeclaration;
 import org.mozilla.javascript.ast.VariableInitializer;
 
 import com.pnf.plugin.javascript.AddressReferences.Position;
+import com.pnfsoftware.jeb.core.events.J;
 import com.pnfsoftware.jeb.core.output.ItemClassIdentifiers;
 import com.pnfsoftware.jeb.core.output.text.ICoordinates;
 import com.pnfsoftware.jeb.core.output.text.ITextDocumentPart;
 import com.pnfsoftware.jeb.core.output.text.impl.AbstractTextDocument;
 import com.pnfsoftware.jeb.core.output.text.impl.Coordinates;
+import com.pnfsoftware.jeb.util.events.IEvent;
+import com.pnfsoftware.jeb.util.events.IEventListener;
 
 /**
  * 
@@ -48,7 +51,7 @@ import com.pnfsoftware.jeb.core.output.text.impl.Coordinates;
  * @author Cedric Lucas
  *
  */
-public class JavascriptDocument extends AbstractTextDocument {
+public class JavascriptDocument extends AbstractTextDocument implements IEventListener {
 
     private JavascriptDocumentPart out;
 
@@ -56,6 +59,7 @@ public class JavascriptDocument extends AbstractTextDocument {
 
     public JavascriptDocument(JavascriptUnit unit) {
         this.unit = unit;
+        unit.addListener(this);
         refreshPart();
     }
 
@@ -203,4 +207,13 @@ public class JavascriptDocument extends AbstractTextDocument {
         return AddressReferences.getAbsolutePosition(unit.getLines(), coordinates.getLineDelta(),
                 coordinates.getColumnOffset());
     }
+
+    @Override
+    public void onEvent(IEvent e) {
+        if(e.getType() == J.UnitChange) {
+            refreshPart();
+            this.notifyListeners(e);
+        }
+    }
+
 }

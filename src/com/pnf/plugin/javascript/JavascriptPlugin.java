@@ -17,12 +17,11 @@ limitations under the License.
  */
 package com.pnf.plugin.javascript;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import org.mozilla.javascript.IRFactory;
 import org.mozilla.javascript.ast.AstRoot;
 
+import com.pnfsoftware.jeb.core.IPlugin;
 import com.pnfsoftware.jeb.core.IPluginInformation;
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.PluginInformation;
@@ -33,8 +32,7 @@ import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
 
 /**
- * The {@link #canIdentify(IInput, IUnitCreator)} method try to parse the file to check that it is a
- * javascript.
+ * {@link IPlugin} that process JavaScript files
  * 
  * @author Cedric Lucas
  *
@@ -55,10 +53,8 @@ public class JavascriptPlugin extends AbstractUnitIdentifier {
     @Override
     public boolean canIdentify(IInput input, IUnitCreator parent) {
         // parse the javascript
-        IRFactory factory = new IRFactory();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input.getStream()));
-            root = factory.parse(reader, null, 0);
+            root = JavascriptUnit.buildRoot(new InputStreamReader(input.getStream()));
             return root.hasChildren();
         }
         catch(Exception e) {

@@ -19,12 +19,14 @@ package com.pnf.plugin.javascript;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mozilla.javascript.IRFactory;
 import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ast.AstNode;
@@ -37,7 +39,11 @@ import org.mozilla.javascript.ast.StringLiteral;
 
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.actions.ActionContext;
+import com.pnfsoftware.jeb.core.actions.ActionRenameData;
+import com.pnfsoftware.jeb.core.actions.Actions;
 import com.pnfsoftware.jeb.core.actions.IActionData;
+import com.pnfsoftware.jeb.core.events.J;
+import com.pnfsoftware.jeb.core.events.JebEvent;
 import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.input.IInputLocation;
 import com.pnfsoftware.jeb.core.output.AbstractUnitRepresentation;
@@ -51,6 +57,8 @@ import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
 import com.pnfsoftware.jeb.core.units.NotificationType;
 import com.pnfsoftware.jeb.core.units.UnitNotification;
+import com.pnfsoftware.jeb.util.logging.GlobalLog;
+import com.pnfsoftware.jeb.util.logging.ILogger;
 
 /**
  * {@link IUnit} used for processing JavaScript files. It beautifies the code, highlight important
@@ -60,7 +68,7 @@ import com.pnfsoftware.jeb.core.units.UnitNotification;
  *
  */
 public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUnit {
-    //private static final ILogger logger = GlobalLog.getLogger(JavascriptUnit.class);
+    private static final ILogger logger = GlobalLog.getLogger(JavascriptUnit.class);
 
     private AstRoot root = null;
 
@@ -195,43 +203,88 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
 
     @Override
     public Map<String, String> getAddressLabels() {
-        // TODO Auto-generated method stub
+        // Won't implement this
         return null;
     }
 
     @Override
     public String getComment(String address) {
-        // TODO Auto-generated method stub
+        // Won't implement this
         return null;
     }
 
     @Override
     public Map<String, String> getComments() {
-        // TODO Auto-generated method stub
+        // Won't implement this
         return null;
     }
 
     @Override
     public boolean canExecuteAction(ActionContext actionContext) {
-        // TODO Auto-generated method stub
+        if(actionContext.getActionId() == Actions.RENAME) {
+            return getElementAt(actionContext.getAddress(), strings) != null;
+        }
         return false;
     }
 
     @Override
     public boolean prepareExecution(ActionContext actionContext, IActionData actionData) {
-        // TODO Auto-generated method stub
+        if(actionContext.getActionId() == Actions.RENAME) {
+            StringLiteral string = getElementAt(actionContext.getAddress(), strings);
+            if(string != null) {
+                actionData.setValue("RENAME_NODE", string);
+                ((ActionRenameData)actionData).setCurrentName(string.getValue());
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
     public boolean executeAction(ActionContext actionContext, IActionData actionData) {
-        // TODO Auto-generated method stub
+        logger.info("%s called with address %s and actionId %d", "executeAction", actionContext.getAddress(),
+                actionContext.getActionId());
+        if(actionContext.getActionId() == Actions.RENAME) {
+            StringLiteral string = (StringLiteral)actionData.getValue("RENAME_NODE");
+            String newName = ((ActionRenameData)actionData).getNewName();
+            if(newName == null || newName.isEmpty() || newName.equals(string.getValue())) {
+                return false;
+            }
+            // update model
+            Entry<Integer, String> currentLine = lines.floorEntry(string.getAbsolutePosition());
+            String oldLine = currentLine.getValue();
+            String newLine = oldLine.substring(0, string.getAbsolutePosition() - currentLine.getKey() + 1)
+                    + newName
+                    + oldLine.substring(string.getAbsolutePosition() - currentLine.getKey()
+                            + string.getValue().length() + 1);
+            lines.put(currentLine.getKey(), newLine);
+            try {
+                updateRoot();
+            }
+            catch(IOException e) {
+                logger.catching(e);
+                // revert line change
+                lines.put(currentLine.getKey(), oldLine);
+                return false;
+            }
+            notifyListeners(new JebEvent(J.UnitChange));
+            return true;
+        }
         return false;
+    }
+
+    private void updateRoot() throws IOException {
+        String newSource = StringUtils.join(lines.values(), "\n");
+        root = buildRoot(new StringReader(newSource));
+        updateLines(newSource);
     }
 
     @Override
     public String getAddressOfItem(long id) {
-        // TODO Auto-generated method stub
+        if(id != 0) {
+            // use absolute position as itemId
+            return String.valueOf(id);
+        }
         return null;
     }
 
