@@ -7,5 +7,10 @@
 			<attribute name="javadoc_location" value="jar:file:/home/clucas/jeb-2.0.6.201508260620/doc/apidoc.zip!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/rhino1.7.6.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/jeb2-plugin-js/lib/rhino1.7.6-javadoc.zip!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

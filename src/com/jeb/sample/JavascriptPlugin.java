@@ -17,6 +17,12 @@ limitations under the License.
  */
 package com.jeb.sample;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import org.mozilla.javascript.IRFactory;
+import org.mozilla.javascript.ast.AstRoot;
+
 import com.pnfsoftware.jeb.core.IPluginInformation;
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.PluginInformation;
@@ -27,32 +33,40 @@ import com.pnfsoftware.jeb.core.units.IUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
 
 /**
- * A Sample plugin that check for a #Javascript header and parse javascript code under this tag
+ * Solution of the Tutorial 3 Exercice. The {@link #canIdentify(IInput, IUnitCreator)} method thy to
+ * parse the file to check that it is a js.
  * 
  * @author Cedric Lucas
  *
  */
-public class SamplePlugin extends AbstractUnitIdentifier {
+public class JavascriptPlugin extends AbstractUnitIdentifier {
 
-    public SamplePlugin() {
-        super("hashJavascript", 0);
+    public JavascriptPlugin() {
+        super("js", 0);
     }
 
     @Override
     public IPluginInformation getPluginInformation() {
-        return new PluginInformation("hashJavascript", "#Javascript containing JS code", "PNF Software",
-                Version.create(0, 1));
+        return new PluginInformation("JavaScript", "Javascript files", "PNF Software", Version.create(0, 1));
     }
-
-    private final static byte[] JS_HEADER = "#Javascript".getBytes();
 
     @Override
     public boolean canIdentify(IInput input, IUnitCreator parent) {
-        return checkBytes(input, 0, JS_HEADER);
+        // parse the javascript
+        IRFactory factory = new IRFactory();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input.getStream()));
+            AstRoot root = factory.parse(reader, null, 0);
+            return root.hasChildren();
+        }
+        catch(Exception e) {
+            return false;
+        }
     }
 
     @Override
     public IUnit prepare(String name, IInput input, IUnitProcessor unitProcessor, IUnitCreator parent) {
-        return new SampleUnit(name, input, unitProcessor, parent, pdm);
+        return new JavascriptUnit(name, input, unitProcessor, parent, pdm);
     }
+
 }
