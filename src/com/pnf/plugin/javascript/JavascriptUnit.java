@@ -15,15 +15,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package com.jeb.sample;
+package com.pnf.plugin.javascript;
+
+import org.mozilla.javascript.ast.AstRoot;
 
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.output.AbstractUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
-import com.pnfsoftware.jeb.core.output.UnitFormatterAdapter;
-import com.pnfsoftware.jeb.core.output.text.impl.AsciiDocument;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.units.AbstractBinaryUnit;
 import com.pnfsoftware.jeb.core.units.IUnitProcessor;
@@ -32,27 +32,28 @@ import com.pnfsoftware.jeb.core.units.IUnitProcessor;
  * Simple Javascript Display
  * 
  * @author Cedric Lucas
- *
  */
 public class JavascriptUnit extends AbstractBinaryUnit {
 
+    private AstRoot root = null;
+
     public JavascriptUnit(String name, IInput input, IUnitProcessor unitProcessor, IUnitCreator parent,
-            IPropertyDefinitionManager pdm) {
+            IPropertyDefinitionManager pdm, AstRoot root) {
         super(null, input, "js", name, unitProcessor, parent, pdm);
+        this.root = root;
     }
 
     @Override
     public boolean process() {
-        return true;
-    }
-
-    @Override
-    public IUnitFormatter getFormatter() {
-        return new UnitFormatterAdapter(new AbstractUnitRepresentation("javascript", true) {
+        // add presentations to existing formatter
+        IUnitFormatter formatter = super.getFormatter();
+        formatter.addPresentation(new AbstractUnitRepresentation("javascript", true) {
             @Override
             public IGenericDocument getDocument() {
-                return new AsciiDocument(getInput());
+                return new JavascriptDocument(root);
             }
-        });
+        }, false);
+        setProcessed(true);
+        return true;
     }
 }

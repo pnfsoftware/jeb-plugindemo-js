@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!-- Sample Ant build file for JEB2 Jar plugin -->
+<project basedir="." default="build" name="jebplugin">
+
+    <!-- !!!!! Customizable properties -->
+
+    <!-- Mandatory properties -->
+    <property name="jebpath"    value="/home/clucas/jeb-2.0.6.201508260620/bin/cl/jeb.jar"/>
+    <property name="outfile"    value="out/JebJavascriptPlugin-0.1.jar"/>
+    <property name="entryclass" value="com.jeb.sample.javascript.JavascriptPlugin"/>
+    <!-- Optional properties -->
+    <!-- ... -->
+
+    <!-- External libraries, for build process (semi-colon separated) -->
+    <property name="extcp_build"    value="lib/rhino1.7.6.jar"/>
+    <!-- External libraries, for Manifest (space separated) -->
+    <property name="extcp_manifest" value="lib/rhino1.7.6.jar"/>
+
+    <!-- !!!!! End of customizable properties -->
+
+    <target name="build" depends="compile,package"/>
+
+    <target name="compile">
+        <delete dir="bin"/>
+        <mkdir dir="bin"/>
+        <javac debug="true" debuglevel="source,lines,vars" destdir="bin" includeantruntime="false" source="1.7" target="1.7">
+            <src path="src"/>
+            <classpath>
+                <pathelement location="${jebpath}"/>
+                <pathelement path="${extcp_build}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="package">
+        <delete file="${outfile}"/>
+        <jar destfile="${outfile}">
+            <manifest>
+                <attribute name="Class-Path"            value="${extcp_manifest}"/>
+                <attribute name="JebPlugin-entryclass"  value="${entryclass}"/>
+            </manifest>
+            <fileset dir="bin"/>
+            <fileset dir="." includes="README.md"/>
+        </jar>
+    </target>
+
+</project>

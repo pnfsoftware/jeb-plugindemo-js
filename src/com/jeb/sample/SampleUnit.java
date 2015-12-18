@@ -35,7 +35,6 @@ import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.output.AbstractUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
-import com.pnfsoftware.jeb.core.output.UnitFormatterAdapter;
 import com.pnfsoftware.jeb.core.output.text.impl.AsciiDocument;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
 import com.pnfsoftware.jeb.core.units.AbstractBinaryUnit;
@@ -89,29 +88,28 @@ public class SampleUnit extends AbstractBinaryUnit {
                 }
             }
         }
-        return true;
-    }
 
-    @Override
-    public IUnitFormatter getFormatter() {
-        UnitFormatterAdapter adapter = new UnitFormatterAdapter(new AbstractUnitRepresentation("javascript raw code",
-                true) {
+        // add presentations to existing formatter
+        IUnitFormatter formatter = super.getFormatter();
+        formatter.addPresentation(new AbstractUnitRepresentation("javascript raw code", true) {
             @Override
             public IGenericDocument getDocument() {
                 return new AsciiDocument(getInput());
             }
-        });
+        }, false);
         if(functions != null) {
             for(final FunctionNode function: functions) {
-                adapter.addDocumentPresentation(new AbstractUnitRepresentation(function.getName()) {
+                formatter.addPresentation(new AbstractUnitRepresentation(function.getName()) {
                     @Override
                     public IGenericDocument getDocument() {
                         return new AsciiDocument(new BytesInput(function.toSource().getBytes()));
                     }
-                });
+                }, false);
             }
         }
-        return adapter;
-    }
 
+        // avoid reprocessing the file
+        setProcessed(true);
+        return true;
+    }
 }
