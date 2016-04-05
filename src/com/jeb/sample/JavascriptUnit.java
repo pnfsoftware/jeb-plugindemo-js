@@ -43,6 +43,7 @@ public class JavascriptUnit extends AbstractBinaryUnit {
 
     @Override
     public boolean process() {
+        setProcessed(true);
         return true;
     }
 

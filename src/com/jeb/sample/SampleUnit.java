@@ -89,6 +89,7 @@ public class SampleUnit extends AbstractBinaryUnit {
                 }
             }
         }
+        setProcessed(true);
         return true;
     }
 
