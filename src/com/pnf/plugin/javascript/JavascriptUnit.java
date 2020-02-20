@@ -21,7 +21,7 @@ import org.mozilla.javascript.ast.AstRoot;
 
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.input.IInput;
-import com.pnfsoftware.jeb.core.output.AbstractUnitRepresentation;
+import com.pnfsoftware.jeb.core.output.AbstractTransientUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
@@ -47,9 +47,9 @@ public class JavascriptUnit extends AbstractBinaryUnit {
     public boolean process() {
         // add presentations to existing formatter
         IUnitFormatter formatter = super.getFormatter();
-        formatter.addPresentation(new AbstractUnitRepresentation("javascript", true) {
+        formatter.addPresentation(new AbstractTransientUnitRepresentation("javascript", true) {
             @Override
-            public IGenericDocument getDocument() {
+            public IGenericDocument createDocument() {
                 return new JavascriptDocument(root);
             }
         }, false);

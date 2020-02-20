@@ -20,7 +20,6 @@ package com.pnf.plugin.javascript;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.mozilla.javascript.Node;
 import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ast.AstNode;
@@ -32,6 +31,7 @@ import org.mozilla.javascript.ast.Name;
 import com.pnfsoftware.jeb.core.output.ItemClassIdentifiers;
 import com.pnfsoftware.jeb.core.output.text.ITextDocumentPart;
 import com.pnfsoftware.jeb.core.output.text.impl.AbstractTextDocument;
+import com.pnfsoftware.jeb.util.format.Strings;
 import com.pnfsoftware.jeb.util.logging.GlobalLog;
 import com.pnfsoftware.jeb.util.logging.ILogger;
 
@@ -137,13 +137,13 @@ public class JavascriptDocument extends AbstractTextDocument {
     }
 
     private String displayFunctionParameters(FunctionNode functionNode) {
-        List<String> parameters = new ArrayList<String>();
+        List<String> parameters = new ArrayList<>();
         for(AstNode node: functionNode.getParams()) {
             if(node instanceof Name) {
                 parameters.add(((Name)node).getIdentifier());
             }
         }
-        return StringUtils.join(parameters, ", ");
+        return Strings.join(", ", parameters);
     }
 
     @Override
