@@ -40,7 +40,7 @@ import com.pnfsoftware.jeb.core.actions.ActionContext;
 import com.pnfsoftware.jeb.core.actions.IActionData;
 import com.pnfsoftware.jeb.core.input.IInput;
 import com.pnfsoftware.jeb.core.input.IInputLocation;
-import com.pnfsoftware.jeb.core.output.AbstractUnitRepresentation;
+import com.pnfsoftware.jeb.core.output.AbstractTransientUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
 import com.pnfsoftware.jeb.core.properties.IPropertyDefinitionManager;
@@ -87,9 +87,9 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
 
         // add presentations to existing formatter
         IUnitFormatter formatter = super.getFormatter();
-        formatter.addPresentation(new AbstractUnitRepresentation("javascript", true) {
+        formatter.addPresentation(new AbstractTransientUnitRepresentation("javascript", true) {
             @Override
-            public IGenericDocument getDocument() {
+            public IGenericDocument createDocument() {
                 return new JavascriptDocument(JavascriptUnit.this);
             }
         }, false);
@@ -206,6 +206,12 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
     }
 
     @Override
+    public boolean setComment(String address, String comment) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
     public Map<String, String> getComments() {
         // TODO Auto-generated method stub
         return null;
@@ -225,6 +231,12 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
 
     @Override
     public boolean executeAction(ActionContext actionContext, IActionData actionData) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean executeAction(ActionContext actionContext, IActionData actionData, boolean notify) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -260,6 +272,18 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
     }
 
     @Override
+    public Object getItemObject(long id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Long> getRelatedItems(long id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public IInputLocation addressToLocation(String address) {
         // TODO Auto-generated method stub
         return null;
@@ -275,6 +299,12 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
     public IMetadataManager getMetadataManager() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public boolean isValidAddress(String address) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

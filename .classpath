@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/clucas/jeb-2.0.6.201508260620/bin/cl/jeb.jar">
+	<classpathentry kind="lib" path="/home/clucas/jeb-pro-3.13.0.202002181912/bin/app/jeb.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/home/clucas/jeb-2.0.6.201508260620/doc/apidoc.zip!/"/>
 		</attributes>
