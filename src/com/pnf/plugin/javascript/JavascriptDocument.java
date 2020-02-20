@@ -33,6 +33,7 @@ import org.mozilla.javascript.ast.VariableInitializer;
 
 import com.pnf.plugin.javascript.AddressReferences.Position;
 import com.pnfsoftware.jeb.core.events.J;
+import com.pnfsoftware.jeb.core.output.AddressConversionPrecision;
 import com.pnfsoftware.jeb.core.output.ItemClassIdentifiers;
 import com.pnfsoftware.jeb.core.output.text.ICoordinates;
 import com.pnfsoftware.jeb.core.output.text.ITextDocumentPart;
@@ -203,7 +204,7 @@ public class JavascriptDocument extends AbstractTextDocument implements IEventLi
     }
 
     @Override
-    public String coordinatesToAddress(ICoordinates coordinates) {
+    public String coordinatesToAddress(ICoordinates coordinates, AddressConversionPrecision precision) {
         return AddressReferences.getAbsolutePosition(unit.getLines(), coordinates.getLineDelta(),
                 coordinates.getColumnOffset());
     }
