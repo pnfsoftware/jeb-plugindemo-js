@@ -6,9 +6,9 @@
     <!-- !!!!! Customizable properties -->
 
     <!-- Mandatory properties -->
-    <property name="jebpath"    value="/home/clucas/jeb-2.0.6.201508260620/bin/cl/jeb.jar"/>
+    <property name="jebpath"    value="/home/clucas/jeb-pro-3.13.0.202002181912/bin/app/jeb.jar"/>
     <property name="outfile"    value="out/JebJavascriptPlugin-0.1.jar"/>
-    <property name="entryclass" value="com.jeb.sample.javascript.JavascriptPlugin"/>
+    <property name="entryclass" value="com.pnf.plugin.javascript.JavascriptPlugin"/>
     <!-- Optional properties -->
     <!-- ... -->
 
