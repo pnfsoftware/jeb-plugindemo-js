@@ -32,7 +32,7 @@ import org.mozilla.javascript.ast.FunctionNode;
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.input.BytesInput;
 import com.pnfsoftware.jeb.core.input.IInput;
-import com.pnfsoftware.jeb.core.output.AbstractUnitRepresentation;
+import com.pnfsoftware.jeb.core.output.AbstractTransientUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
 import com.pnfsoftware.jeb.core.output.UnitFormatterAdapter;
@@ -60,7 +60,7 @@ public class SampleUnit extends AbstractBinaryUnit {
 
     private AstRoot root = null;
 
-    private List<FunctionNode> functions = new ArrayList<FunctionNode>();
+    private List<FunctionNode> functions = new ArrayList<>();
 
     @Override
     public boolean process() {
@@ -95,18 +95,18 @@ public class SampleUnit extends AbstractBinaryUnit {
 
     @Override
     public IUnitFormatter getFormatter() {
-        UnitFormatterAdapter adapter = new UnitFormatterAdapter(new AbstractUnitRepresentation("javascript raw code",
-                true) {
+        UnitFormatterAdapter adapter = new UnitFormatterAdapter(
+                new AbstractTransientUnitRepresentation("javascript raw code", true) {
             @Override
-            public IGenericDocument getDocument() {
+                    public IGenericDocument createDocument() {
                 return new AsciiDocument(getInput());
             }
         });
         if(functions != null) {
             for(final FunctionNode function: functions) {
-                adapter.addDocumentPresentation(new AbstractUnitRepresentation(function.getName()) {
+                adapter.addDocumentPresentation(new AbstractTransientUnitRepresentation(function.getName()) {
                     @Override
-                    public IGenericDocument getDocument() {
+                    public IGenericDocument createDocument() {
                         return new AsciiDocument(new BytesInput(function.toSource().getBytes()));
                     }
                 });
