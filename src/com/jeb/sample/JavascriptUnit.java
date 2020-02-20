@@ -19,7 +19,7 @@ package com.jeb.sample;
 
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.input.IInput;
-import com.pnfsoftware.jeb.core.output.AbstractUnitRepresentation;
+import com.pnfsoftware.jeb.core.output.AbstractTransientUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
 import com.pnfsoftware.jeb.core.output.UnitFormatterAdapter;
@@ -48,9 +48,9 @@ public class JavascriptUnit extends AbstractBinaryUnit {
 
     @Override
     public IUnitFormatter getFormatter() {
-        return new UnitFormatterAdapter(new AbstractUnitRepresentation("javascript", true) {
+        return new UnitFormatterAdapter(new AbstractTransientUnitRepresentation("javascript", true) {
             @Override
-            public IGenericDocument getDocument() {
+            public IGenericDocument createDocument() {
                 return new AsciiDocument(getInput());
             }
         });

@@ -34,7 +34,7 @@ import org.mozilla.javascript.ast.Name;
 import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.input.BytesInput;
 import com.pnfsoftware.jeb.core.input.IInput;
-import com.pnfsoftware.jeb.core.output.AbstractUnitRepresentation;
+import com.pnfsoftware.jeb.core.output.AbstractTransientUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
 import com.pnfsoftware.jeb.core.output.UnitFormatterAdapter;
@@ -69,7 +69,7 @@ public class SampleUnit extends AbstractBinaryUnit {
 
     private AstRoot root = null;
 
-    private List<FunctionNode> functions = new ArrayList<FunctionNode>();
+    private List<FunctionNode> functions = new ArrayList<>();
 
     @Override
     public boolean process() {
@@ -106,10 +106,10 @@ public class SampleUnit extends AbstractBinaryUnit {
 
     @Override
     public IUnitFormatter getFormatter() {
-        UnitFormatterAdapter adapter = new UnitFormatterAdapter(new AbstractUnitRepresentation("javascript raw code",
-                true) {
+        UnitFormatterAdapter adapter = new UnitFormatterAdapter(
+                new AbstractTransientUnitRepresentation("javascript raw code", true) {
             @Override
-            public IGenericDocument getDocument() {
+                    public IGenericDocument createDocument() {
                 return new AsciiDocument(getInput());
             }
         });
@@ -126,17 +126,17 @@ public class SampleUnit extends AbstractBinaryUnit {
         //        }
 
         // Displays the Statistics table
-        adapter.addDocumentPresentation(new AbstractUnitRepresentation("Statistics") {
+        adapter.addDocumentPresentation(new AbstractTransientUnitRepresentation("Statistics") {
             @Override
-            public IGenericDocument getDocument() {
+            public IGenericDocument createDocument() {
                 return getStatisticsTable();
             }
         });
 
         // Display js as tree
-        adapter.addDocumentPresentation(new AbstractUnitRepresentation("Functions") {
+        adapter.addDocumentPresentation(new AbstractTransientUnitRepresentation("Functions") {
             @Override
-            public IGenericDocument getDocument() {
+            public IGenericDocument createDocument() {
                 return getFunctionsTree();
             }
         });
@@ -145,14 +145,14 @@ public class SampleUnit extends AbstractBinaryUnit {
     }
 
     private ITableDocument getStatisticsTable() {
-        List<TableRow> rows = new ArrayList<TableRow>();
+        List<TableRow> rows = new ArrayList<>();
         rows.add(new TableRow(new Cell("Length"), new Cell(Integer.toString(root.getLength()))));
         rows.add(new TableRow(new Cell("Type"), new Cell(Integer.toString(root.getType()))));
         return new StaticTableDocument(Arrays.asList("Property", "Value"), rows);
     }
 
     private ITreeDocument getFunctionsTree() {
-        List<Node> treeRoot = new ArrayList<Node>();
+        List<Node> treeRoot = new ArrayList<>();
         try {
             if(functions != null) {
                 for(FunctionNode function: functions) {
