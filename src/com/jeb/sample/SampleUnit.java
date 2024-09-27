@@ -43,6 +43,9 @@ public class SampleUnit extends AbstractBinaryUnit {
 
     @Override
     public boolean process() {
+        // indicates that the processing is already done: process won't be called again in future
+        setProcessed(true);
+        // default is false. True indicates that processing is successful.
         return true;
     }
 
@@ -55,5 +58,4 @@ public class SampleUnit extends AbstractBinaryUnit {
             }
         });
     }
-
 }
