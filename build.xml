@@ -2,12 +2,14 @@
 
 <!-- Sample Ant build file for JEB2 Jar plugin -->
 <project basedir="." default="build" name="jebplugin">
-
+	<property environment="env"/>
+	<echo message="JEB_HOME: ${env.JEB_HOME}"/>
     <!-- !!!!! Customizable properties -->
 
     <!-- Mandatory properties -->
-    <property name="jebpath"    value="/home/clucas/jeb-pro-3.13.0.202002181912/bin/app/jeb.jar"/>
-    <property name="outfile"    value="out/JebJavascriptPlugin-0.1.jar"/>
+    <property name="version"    value="0.1"/>
+    <property name="jebpath"    value="${env.JEB_HOME}/bin/app/jebc.jar"/>
+    <property name="outfile"    value="out/JebJavascriptPlugin-${version}.jar"/>
     <property name="entryclass" value="com.pnf.plugin.javascript.JavascriptPlugin"/>
     <!-- Optional properties -->
     <!-- ... -->
