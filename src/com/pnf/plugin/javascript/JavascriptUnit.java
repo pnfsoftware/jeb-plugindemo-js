@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -45,7 +44,6 @@ import com.pnfsoftware.jeb.core.actions.IActionData;
 import com.pnfsoftware.jeb.core.events.J;
 import com.pnfsoftware.jeb.core.events.JebEvent;
 import com.pnfsoftware.jeb.core.input.IInput;
-import com.pnfsoftware.jeb.core.input.IInputLocation;
 import com.pnfsoftware.jeb.core.output.AbstractTransientUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
@@ -202,30 +200,6 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
     }
 
     @Override
-    public Map<String, String> getAddressLabels() {
-        // Won't implement this
-        return null;
-    }
-
-    @Override
-    public String getComment(String address) {
-        // Won't implement this
-        return null;
-    }
-
-    @Override
-    public boolean setComment(String address, String comment) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public Map<String, String> getComments() {
-        // Won't implement this
-        return null;
-    }
-
-    @Override
     public boolean canExecuteAction(ActionContext actionContext) {
         if(actionContext.getActionId() == Actions.RENAME) {
             return getElementAt(actionContext.getAddress(), strings) != null;
@@ -336,18 +310,6 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
     }
 
     @Override
-    public IInputLocation addressToLocation(String address) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String locationToAddress(IInputLocation location) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public IMetadataManager getMetadataManager() {
         // TODO Auto-generated method stub
         return null;
@@ -358,5 +320,4 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
         // TODO Auto-generated method stub
         return false;
     }
-
 }
