@@ -20,7 +20,6 @@ package com.pnf.plugin.javascript;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -39,7 +38,6 @@ import com.pnfsoftware.jeb.core.IUnitCreator;
 import com.pnfsoftware.jeb.core.actions.ActionContext;
 import com.pnfsoftware.jeb.core.actions.IActionData;
 import com.pnfsoftware.jeb.core.input.IInput;
-import com.pnfsoftware.jeb.core.input.IInputLocation;
 import com.pnfsoftware.jeb.core.output.AbstractTransientUnitRepresentation;
 import com.pnfsoftware.jeb.core.output.IGenericDocument;
 import com.pnfsoftware.jeb.core.output.IUnitFormatter;
@@ -194,30 +192,6 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
     }
 
     @Override
-    public Map<String, String> getAddressLabels() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getComment(String address) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public boolean setComment(String address, String comment) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public Map<String, String> getComments() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public boolean canExecuteAction(ActionContext actionContext) {
         // TODO Auto-generated method stub
         return false;
@@ -279,18 +253,6 @@ public class JavascriptUnit extends AbstractBinaryUnit implements IInteractiveUn
 
     @Override
     public List<Long> getRelatedItems(long id) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IInputLocation addressToLocation(String address) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String locationToAddress(IInputLocation location) {
         // TODO Auto-generated method stub
         return null;
     }

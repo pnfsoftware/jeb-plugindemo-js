@@ -33,6 +33,7 @@ import org.mozilla.javascript.ast.VariableInitializer;
 
 import com.pnf.plugin.javascript.AddressReferences.Position;
 import com.pnfsoftware.jeb.core.output.AddressConversionPrecision;
+import com.pnfsoftware.jeb.core.output.CoordinatesConversionPrecision;
 import com.pnfsoftware.jeb.core.output.ItemClassIdentifiers;
 import com.pnfsoftware.jeb.core.output.text.ICoordinates;
 import com.pnfsoftware.jeb.core.output.text.ITextDocumentPart;
@@ -174,7 +175,7 @@ public class JavascriptDocument extends AbstractTextDocument {
     }
 
     @Override
-    public ICoordinates addressToCoordinates(String address) {
+    public ICoordinates addressToCoordinates(String address, CoordinatesConversionPrecision precision) {
         if(address == null) {
             return null;
         }
